@@ -29,29 +29,29 @@ const LiveClock: React.FC = () => {
     const timeStr = time.toLocaleTimeString('es-MX', { hour12: true });
 
     return (
-        <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-xl text-gray-700 font-medium shadow-inner border border-gray-200">
-            <Clock size={18} className="text-teal-600" />
-            <span className="capitalize">{dateStr}</span>
-            <span className="mx-1 text-gray-400">|</span>
+        <div className="flex items-center gap-1 sm:gap-2 bg-gray-100 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-gray-700 font-medium shadow-inner border border-gray-200 text-xs sm:text-base">
+            <Clock size={16} className="text-teal-600" />
+            <span className="capitalize hidden sm:inline">{dateStr}</span>
+            <span className="mx-1 text-gray-400 hidden sm:inline">|</span>
             <span className="font-bold text-gray-900 tracking-wide">{timeStr}</span>
         </div>
     );
 };
 
-const StatCard: React.FC<{ icon: React.ReactNode; title: string; value: string | number; color: string }> = ({ icon, title, value, color }) => (
-    <div className={`bg-white p-6 rounded-2xl shadow-lg border-t-8 ${color} flex items-center gap-6 transform hover:scale-105 transition-transform`}>
-        <div className="bg-gray-100 p-4 rounded-full">
+const StatCard: React.FC<{ icon: React.ReactNode; title: string; value: string | number; color: string; className?: string }> = ({ icon, title, value, color, className = "" }) => (
+    <div className={`bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm sm:shadow-lg border-t-4 sm:border-t-8 ${color} flex items-center gap-3 sm:gap-6 transform hover:scale-105 transition-transform ${className}`}>
+        <div className="bg-gray-100 p-2 sm:p-4 rounded-full hidden sm:block">
             {icon}
         </div>
         <div>
-            <p className="text-gray-500 font-semibold">{title}</p>
-            <p className="text-4xl font-extrabold text-gray-800">{value}</p>
+            <p className="text-gray-400 sm:text-gray-500 text-xs sm:text-base font-semibold">{title}</p>
+            <p className="text-xl sm:text-4xl font-extrabold text-gray-800">{value}</p>
         </div>
     </div>
 );
 
 const OrderDetailRow: React.FC<{ item: OrderItem }> = ({ item }) => (
-    <div className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+    <div className="flex justify-between items-center bg-gray-50 sm:bg-white p-2 sm:p-3 rounded-lg sm:shadow-sm text-sm sm:text-base border border-gray-100">
         <div>
             <p className="font-bold text-gray-800">{item.name} <span className="font-normal text-gray-500">x{item.quantity}</span></p>
             {item.notes && <p className="text-xs text-gray-500 italic">Notas: {item.notes}</p>}
@@ -71,54 +71,58 @@ const OrderAdminCard: React.FC<{ order: Order; onDelete: (orderId: string) => vo
     const hasPartialPayment = paidBalance > 0 && owed > 0;
 
     const getStatusChip = () => {
-        if (order.status === 'COMPLETED') return <span className="bg-gray-800 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">FINALIZADO</span>;
-        if (isFullyPaid) return <span className="bg-green-100 border border-green-300 text-green-800 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">PAGADO</span>;
-        if (hasPartialPayment) return <span className="bg-yellow-100 border border-yellow-300 text-yellow-800 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">FALTA ${owed.toFixed(2)}</span>;
-        if (order.status === 'KITCHEN_DONE') return <span className="bg-blue-100 border border-blue-300 text-blue-800 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">LISTO EN COCINA</span>;
-        return <span className="bg-gray-100 border border-gray-300 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">ABIERTO</span>;
+        const baseClasses = "text-[10px] sm:text-xs font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-sm whitespace-nowrap";
+        if (order.status === 'COMPLETED') return <span className={`bg-gray-800 text-white ${baseClasses}`}>FINALIZADO</span>;
+        if (isFullyPaid) return <span className={`bg-green-100 border border-green-300 text-green-800 ${baseClasses}`}>PAGADO</span>;
+        if (hasPartialPayment) return <span className={`bg-yellow-100 border border-yellow-300 text-yellow-800 ${baseClasses}`}>FALTA ${owed.toFixed(2)}</span>;
+        if (order.status === 'KITCHEN_DONE') return <span className={`bg-blue-100 border border-blue-300 text-blue-800 ${baseClasses}`}>LISTO EN COCINA</span>;
+        return <span className={`bg-gray-100 border border-gray-300 text-gray-700 ${baseClasses}`}>ABIERTO</span>;
     };
 
     return (
-        <div className={`bg-white rounded-2xl shadow-md border-t-4 ${orderTypeColor} transition-shadow hover:shadow-xl`}>
-            <div className="p-4 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <div className="mb-2 sm:mb-0">
-                        <h3 className="font-extrabold text-xl text-gray-900">
+        <div className={`bg-white rounded-xl sm:rounded-2xl shadow-sm sm:shadow-md border-l-4 sm:border-l-0 sm:border-t-4 ${orderTypeColor} transition-shadow hover:shadow-lg overflow-hidden`}>
+            <div className="p-3 sm:p-4 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+                <div className="flex items-center justify-between gap-2">
+                    {/* Lado Izquierdo: Info */}
+                    <div className="flex-1 min-w-0">
+                        <h3 className="font-extrabold text-base sm:text-xl text-gray-900 truncate">
                             {order.type === 'DINE_IN' ? `Mesa ${order.tableId}` : order.customerName}
                         </h3>
-                        <div className="flex items-center text-sm text-gray-500 gap-4 mt-1">
-                            <span className="flex items-center gap-1"><Clock size={14} /> {new Date(order.createdAt).toLocaleTimeString()}</span>
-                            <span className="flex items-center gap-1"><User size={14} /> {order.waiterName}</span>
+                        <div className="flex flex-wrap items-center text-[11px] sm:text-sm text-gray-500 gap-x-3 gap-y-1 mt-0.5 sm:mt-1">
+                            <span className="flex items-center gap-1"><Clock size={12} className="sm:w-4 sm:h-4" /> {new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            <span className="flex items-center gap-1 truncate max-w-[100px] sm:max-w-none"><User size={12} className="sm:w-4 sm:h-4" /> {order.waiterName}</span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4 justify-between">
-                         <div className="text-right flex flex-col items-end gap-1">
+                    
+                    {/* Lado Derecho: Estado y Precio */}
+                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                         <div className="text-right flex flex-col items-end gap-0.5 sm:gap-1">
                            {getStatusChip()}
-                           <p className="font-bold text-2xl text-gray-800 mt-1">${order.total.toFixed(2)}</p>
+                           <p className="font-bold text-base sm:text-2xl text-gray-800">${order.total.toFixed(2)}</p>
                          </div>
-                        <ChevronDown size={24} className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                        <ChevronDown size={20} className={`text-gray-400 transition-transform sm:w-6 sm:h-6 ${isExpanded ? 'rotate-180' : ''}`} />
                     </div>
                 </div>
             </div>
 
             {isExpanded && (
-                <div className={`border-t-2 border-dashed ${orderTypeBgColor} p-4`}>
-                    <h4 className="font-bold mb-2 text-gray-700">Desglose del Pedido:</h4>
-                    <div className="space-y-2 mb-4">
+                <div className={`border-t sm:border-t-2 sm:border-dashed border-gray-200 sm:${orderTypeBgColor} p-3 sm:p-4 bg-gray-50 sm:bg-transparent`}>
+                    <h4 className="font-bold mb-2 text-gray-700 text-xs sm:text-base uppercase tracking-wider sm:normal-case sm:tracking-normal">Desglose del Pedido</h4>
+                    <div className="space-y-1 sm:space-y-2 mb-3 sm:mb-4">
                         {order.items.map((item, index) => <OrderDetailRow key={`${item.id}-${index}`} item={item} />)}
                     </div>
 
-                    <div className="bg-white p-4 rounded-xl border border-gray-200">
-                        <div className="flex justify-between text-sm font-medium text-gray-600 mb-1">
+                    <div className="bg-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200 shadow-sm">
+                        <div className="flex justify-between text-xs sm:text-sm font-medium text-gray-600 mb-1">
                             <span>Total del Pedido:</span>
                             <span>${order.total.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between text-sm font-medium text-green-600 mb-1">
+                        <div className="flex justify-between text-xs sm:text-sm font-medium text-green-600 mb-1">
                             <span>Abonado / Pagado:</span>
                             <span>-${paidBalance.toFixed(2)}</span>
                         </div>
                         <div className="w-full h-px bg-gray-200 my-2"></div>
-                        <div className="flex justify-between font-bold text-gray-900 text-lg">
+                        <div className="flex justify-between font-bold text-gray-900 text-base sm:text-lg">
                             <span>Resta por pagar:</span>
                             <span className={owed > 0 ? 'text-red-600' : 'text-green-600'}>
                                 ${Math.max(0, owed).toFixed(2)}
@@ -126,7 +130,7 @@ const OrderAdminCard: React.FC<{ order: Order; onDelete: (orderId: string) => vo
                         </div>
                     </div>
 
-                    <div className="flex justify-end mt-4">
+                    <div className="flex justify-end mt-3 sm:mt-4">
                         <button 
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -134,8 +138,8 @@ const OrderAdminCard: React.FC<{ order: Order; onDelete: (orderId: string) => vo
                                     onDelete(order.id);
                                 }
                             }}
-                            className="flex items-center gap-2 bg-red-100 hover:bg-red-200 text-red-700 font-bold text-sm py-2 px-3 rounded-lg transition-colors">
-                            <Trash2 size={16} /> Eliminar Pedido
+                            className="flex items-center gap-1 sm:gap-2 bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs sm:text-sm py-1.5 px-3 sm:py-2 sm:px-3 rounded-lg transition-colors">
+                            <Trash2 size={14} className="sm:w-4 sm:h-4" /> Eliminar
                         </button>
                     </div>
                 </div>
@@ -146,7 +150,7 @@ const OrderAdminCard: React.FC<{ order: Order; onDelete: (orderId: string) => vo
 
 const AdminDashboard: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
-    const [historyLogs, setHistoryLogs] = useState<DaySummary[]>([]); // La bóveda del historial
+    const [historyLogs, setHistoryLogs] = useState<DaySummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'sales' | 'inventory' | 'history'>('sales');
@@ -156,7 +160,6 @@ const AdminDashboard: React.FC = () => {
             const fetchedOrders = await api.getTodaysOrders();
             setOrders(fetchedOrders.sort((a, b) => b.createdAt - a.createdAt));
             
-            // Descargamos el historial
             const fetchedHistory = await api.getHistory();
             setHistoryLogs(fetchedHistory);
             
@@ -195,7 +198,7 @@ const AdminDashboard: React.FC = () => {
             try {
                 await api.closeDay();
                 alert("El corte de caja se realizó correctamente. Los pedidos se han archivado.");
-                fetchOrders(); // Esto recarga la pantalla y trae el nuevo historial
+                fetchOrders(); 
             } catch (e) {
                 console.error("Failed to close day", e);
                 alert("Error al cerrar el día.");
@@ -212,22 +215,23 @@ const AdminDashboard: React.FC = () => {
 
     const renderSalesContent = () => (
         <>
-            <div className="p-6 bg-gray-50 border-b border-gray-200">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
-                    <StatCard icon={<DollarSign size={40} className="text-green-500"/>} title="Ingresos del Día" value={`$${stats.totalSales.toFixed(2)}`} color="border-green-500" />
-                    <StatCard icon={<Utensils size={40} className="text-orange-500"/>} title="Pedidos Restaurante" value={stats.dineInCount} color="border-orange-500" />
-                    <StatCard icon={<ShoppingBag size={40} className="text-purple-500"/>} title="Pedidos Para Llevar" value={stats.takeawayCount} color="border-purple-500" />
+            <div className="p-3 sm:p-6 bg-gray-50 border-b border-gray-200 shadow-inner">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 max-w-7xl mx-auto">
+                    {/* En celular, las ventas totales ocupan ambas columnas para resaltar */}
+                    <StatCard icon={<DollarSign size={32} className="text-green-500"/>} title="Ingresos del Día" value={`$${stats.totalSales.toFixed(2)}`} color="border-green-500" className="col-span-2 md:col-span-1" />
+                    <StatCard icon={<Utensils size={32} className="text-orange-500"/>} title="Mesas" value={stats.dineInCount} color="border-orange-500" />
+                    <StatCard icon={<ShoppingBag size={32} className="text-purple-500"/>} title="Llevar" value={stats.takeawayCount} color="border-purple-500" />
                 </div>
             </div>
 
-            <main className="flex-1 p-6 overflow-y-auto">
-                <div className="max-w-4xl mx-auto space-y-4">
-                    {isLoading && orders.length === 0 && <p className="text-center text-gray-500">Cargando pedidos...</p>}
-                    {error && <p className="text-center text-red-500">{error}</p>}
+            <main className="flex-1 p-3 sm:p-6 overflow-y-auto">
+                <div className="max-w-4xl mx-auto space-y-2 sm:space-y-4">
+                    {isLoading && orders.length === 0 && <p className="text-center text-gray-500 text-sm">Cargando pedidos...</p>}
+                    {error && <p className="text-center text-red-500 text-sm">{error}</p>}
                     {!isLoading && orders.length === 0 && (
-                        <div className="text-center text-gray-400 py-16">
-                            <ClipboardList size={64} className="mx-auto mb-4" />
-                            <h2 className="text-xl font-semibold">No hay pedidos registrados hoy.</h2>
+                        <div className="text-center text-gray-400 py-12 sm:py-16">
+                            <ClipboardList size={48} className="mx-auto mb-3 sm:mb-4 opacity-50" />
+                            <h2 className="text-lg sm:text-xl font-semibold">No hay pedidos registrados hoy.</h2>
                         </div>
                     )}
                     {orders.map(order => (
@@ -241,52 +245,47 @@ const AdminDashboard: React.FC = () => {
     const renderInventoryContent = () => (
         <div className="flex-1 flex items-center justify-center text-center text-gray-400 p-6">
             <div>
-                <Archive size={64} className="mx-auto mb-4 text-teal-300" />
-                <h2 className="text-2xl font-bold text-gray-600">Módulo de Inventario</h2>
-                <p className="max-w-md mx-auto mt-2 text-gray-500">Esta sección está en construcción. Aquí podrás gestionar las entradas y salidas de insumos de tu restaurante.</p>
+                <Archive size={48} className="mx-auto mb-3 text-teal-300 sm:w-16 sm:h-16" />
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-600">Módulo de Inventario</h2>
+                <p className="max-w-md mx-auto mt-2 text-sm sm:text-base text-gray-500">Esta sección está en construcción. Aquí podrás gestionar las entradas y salidas de insumos.</p>
             </div>
         </div>
     );
 
-    // 🔥 EL NUEVO HISTORIAL YA CONECTADO 🔥
     const renderHistoryContent = () => (
-        <div className="flex-1 p-6 bg-gray-50 overflow-y-auto">
+        <div className="flex-1 p-3 sm:p-6 bg-gray-50 overflow-y-auto">
             <div className="max-w-4xl mx-auto">
-                <div className="flex items-center gap-3 mb-8">
-                    <CalendarDays size={32} className="text-blue-600" />
-                    <h2 className="text-2xl font-bold text-gray-800">Historial de Cortes de Caja</h2>
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8">
+                    <CalendarDays size={24} className="text-blue-600 sm:w-8 sm:h-8" />
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Historial de Cortes</h2>
                 </div>
 
                 {historyLogs.length === 0 ? (
-                    <div className="text-center p-8 bg-blue-50 border-2 border-dashed border-blue-200 rounded-2xl mt-6">
-                        <p className="text-blue-800 font-medium text-lg">
-                            Aún no hay días archivados. 
-                        </p>
-                        <p className="text-blue-600 mt-2">
-                            Asegúrate de tener ventas registradas en "Ventas del Día" y presiona "Cerrar Día" para que aparezcan aquí.
-                        </p>
+                    <div className="text-center p-6 sm:p-8 bg-blue-50 border-2 border-dashed border-blue-200 rounded-xl sm:rounded-2xl mt-4">
+                        <p className="text-blue-800 font-medium text-sm sm:text-lg">Aún no hay días archivados.</p>
+                        <p className="text-blue-600 mt-1 sm:mt-2 text-xs sm:text-base">Presiona "Cerrar Día" para que las ventas aparezcan aquí.</p>
                     </div>
                 ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                         {historyLogs.map(log => {
                             const dateObj = new Date(log.endTime);
-                            const dateStr = dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                            const dateStr = dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short' });
                             const startStr = new Date(log.startTime).toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit' });
                             const endStr = dateObj.toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit' });
 
                             return (
-                                <div key={log.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div key={log.id} className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                                         <div>
-                                            <h3 className="text-xl font-bold text-gray-800 capitalize">Corte - {dateStr}</h3>
-                                            <p className="text-gray-500 text-sm mt-1 flex items-center gap-2">
-                                                <Clock size={14}/> Inicio: {startStr} - Cierre: {endStr}
+                                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 capitalize">Corte - {dateStr}</h3>
+                                            <p className="text-gray-500 text-xs sm:text-sm mt-1 flex items-center gap-1.5">
+                                                <Clock size={12} className="sm:w-3.5 sm:h-3.5"/> {startStr} - {endStr}
                                             </p>
-                                            <p className="text-gray-500 text-sm font-medium mt-1">Total Pedidos Completados: {log.totalOrders}</p>
+                                            <p className="text-gray-500 text-xs sm:text-sm font-medium mt-0.5 sm:mt-1">Total Pedidos: {log.totalOrders}</p>
                                         </div>
-                                        <div className="text-right w-full sm:w-auto bg-green-50 px-4 py-3 rounded-xl border border-green-100">
-                                            <p className="text-sm text-green-800 font-bold uppercase tracking-wider mb-1">Total Vendido</p>
-                                            <p className="text-3xl font-extrabold text-green-600">${log.totalSales.toFixed(2)}</p>
+                                        <div className="text-right w-full sm:w-auto bg-green-50 px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl border border-green-100 flex sm:block justify-between items-center">
+                                            <p className="text-xs sm:text-sm text-green-800 font-bold uppercase tracking-wider sm:mb-1">Total Vendido</p>
+                                            <p className="text-xl sm:text-3xl font-extrabold text-green-600">${log.totalSales.toFixed(2)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -300,50 +299,49 @@ const AdminDashboard: React.FC = () => {
 
     return (
         <div className="h-screen bg-gray-100 flex flex-col">
-            <header className="bg-white p-4 shadow-md z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                    <ClipboardList size={32} className="text-teal-600" />
-                    <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800">Panel de Administración</h1>
+            <header className="bg-white p-3 sm:p-4 shadow-sm sm:shadow-md z-10 flex flex-row items-center justify-between gap-2 sm:gap-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <ClipboardList size={24} className="text-teal-600 sm:w-8 sm:h-8" />
+                    <h1 className="text-lg sm:text-3xl font-extrabold text-gray-800 hidden xs:block">Admin</h1>
                 </div>
                 
-                <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+                <div className="flex items-center gap-2 sm:gap-4">
                     <LiveClock />
                     
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5 sm:gap-2">
                         <button 
                             onClick={manualFetch} 
                             disabled={isLoading}
-                            className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors disabled:opacity-50"
-                            title="Actualizar Pedidos"
+                            className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors disabled:opacity-50"
                         >
-                            {isLoading ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+                            {isLoading ? <Loader2 size={16} className="animate-spin sm:w-5 sm:h-5" /> : <RefreshCw size={14} className="sm:w-5 sm:h-5" />}
                         </button>
                         <button 
                             onClick={handleCloseDay}
-                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl transition-colors shadow-md"
+                            className="flex items-center gap-1 sm:gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-2 sm:py-2 sm:px-4 rounded-lg sm:rounded-xl transition-colors shadow-sm sm:shadow-md"
                         >
-                            <Power size={18} />
-                            <span className="hidden sm:inline">Cerrar Día</span>
+                            <Power size={14} className="sm:w-5 sm:h-5" />
+                            <span className="hidden sm:inline text-sm sm:text-base">Cerrar Día</span>
                         </button>
                     </div>
                 </div>
             </header>
 
             <div className="border-b border-gray-200 bg-white shadow-sm z-0 relative">
-                <nav className="-mb-px flex gap-6 px-6 overflow-x-auto" aria-label="Tabs">
+                <nav className="-mb-px flex gap-2 sm:gap-6 px-3 sm:px-6 overflow-x-auto hide-scrollbar" aria-label="Tabs">
                     <button
                         onClick={() => setActiveTab('sales')}
-                        className={`shrink-0 border-b-4 px-2 py-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === 'sales' ? 'border-teal-500 text-teal-700' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}`}>
-                        Ventas del Día
+                        className={`shrink-0 border-b-2 sm:border-b-4 px-2 py-3 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === 'sales' ? 'border-teal-500 text-teal-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                        Ventas
                     </button>
                     <button
                         onClick={() => setActiveTab('history')}
-                        className={`shrink-0 border-b-4 px-2 py-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === 'history' ? 'border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}`}>
+                        className={`shrink-0 border-b-2 sm:border-b-4 px-2 py-3 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === 'history' ? 'border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                         Historial
                     </button>
                     <button
                         onClick={() => setActiveTab('inventory')}
-                        className={`shrink-0 border-b-4 px-2 py-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === 'inventory' ? 'border-purple-500 text-purple-700' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}`}>
+                        className={`shrink-0 border-b-2 sm:border-b-4 px-2 py-3 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === 'inventory' ? 'border-purple-500 text-purple-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                         Inventario
                     </button>
                 </nav>
