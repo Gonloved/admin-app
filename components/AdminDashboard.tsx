@@ -14,6 +14,11 @@ import {
     Loader2,
     Power,
     Archive,
+    Banknote, 
+    CreditCard,
+ ChevronUp,
+  Receipt,
+ Smartphone,
     CalendarDays
 } from 'lucide-react';
 
@@ -64,7 +69,6 @@ const OrderAdminCard: React.FC<{ order: Order; onDelete: (orderId: string) => vo
     const [isExpanded, setIsExpanded] = useState(false);
     const orderTypeColor = order.type === 'DINE_IN' ? 'border-orange-500' : 'border-purple-500';
     const orderTypeBgColor = order.type === 'DINE_IN' ? 'bg-orange-50' : 'bg-purple-50';
-
     const paidBalance = order.paidBalance || 0;
     const owed = order.total - paidBalance;
     const isFullyPaid = owed <= 0 && order.total > 0;
@@ -154,6 +158,9 @@ const AdminDashboard: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'sales' | 'inventory' | 'history'>('sales');
+const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
+const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' | null>(null);
 
     const fetchOrders = useCallback(async () => {
         try {
@@ -253,50 +260,237 @@ const AdminDashboard: React.FC = () => {
     );
 
     const renderHistoryContent = () => (
-        <div className="flex-1 p-3 sm:p-6 bg-gray-50 overflow-y-auto">
-            <div className="max-w-4xl mx-auto">
-                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8">
-                    <CalendarDays size={24} className="text-blue-600 sm:w-8 sm:h-8" />
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Historial de Cortes</h2>
+    <div className="flex-1 p-3 sm:p-6 bg-gray-50 overflow-y-auto">
+        <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8">
+                <CalendarDays size={24} className="text-blue-600 sm:w-8 sm:h-8" />
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Historial de Cortes</h2>
+            </div>
+
+            {historyLogs.length === 0 ? (
+                <div className="text-center p-6 sm:p-8 bg-blue-50 border-2 border-dashed border-blue-200 rounded-xl sm:rounded-2xl mt-4">
+                    <p className="text-blue-800 font-medium text-sm sm:text-lg">Aún no hay días archivados.</p>
+                    <p className="text-blue-600 mt-1 sm:mt-2 text-xs sm:text-base">Presiona "Cerrar Día" para que las ventas aparezcan aquí.</p>
                 </div>
+            ) : (
+                <div className="space-y-3 sm:space-y-4">
+                    {historyLogs.map(log => {
+                        const dateObj = new Date(log.endTime);
+                        const dateStr = dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short' });
+                        const startStr = new Date(log.startTime).toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit' });
+                        const endStr = dateObj.toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit' });
+                        
+                        const isExpanded = expandedHistoryId === log.id;
+                        
+                        const tCash = log.totalCash || 0;
+                        const tCard = log.totalCard || 0;
+                        const tTrans = log.totalTransfer || 0;
+                        const archived = log.archivedOrders || [];
 
-                {historyLogs.length === 0 ? (
-                    <div className="text-center p-6 sm:p-8 bg-blue-50 border-2 border-dashed border-blue-200 rounded-xl sm:rounded-2xl mt-4">
-                        <p className="text-blue-800 font-medium text-sm sm:text-lg">Aún no hay días archivados.</p>
-                        <p className="text-blue-600 mt-1 sm:mt-2 text-xs sm:text-base">Presiona "Cerrar Día" para que las ventas aparezcan aquí.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3 sm:space-y-4">
-                        {historyLogs.map(log => {
-                            const dateObj = new Date(log.endTime);
-                            const dateStr = dateObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short' });
-                            const startStr = new Date(log.startTime).toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit' });
-                            const endStr = dateObj.toLocaleTimeString('es-MX', { hour12: true, hour: '2-digit', minute: '2-digit' });
+                        // 🔥 LÓGICA DEL FILTRO: Comparamos cada pedido para ver si tiene el método seleccionado
+                        const filteredArchived = paymentFilter 
+                            ? archived.filter(order => {
+                                if (order.payments && order.payments.length > 0) {
+                                    return order.payments.some(p => p.method === paymentFilter);
+                                }
+                                // Por si son pedidos muy viejos (Compatibilidad)
+                                const oldMethod = order.paymentMethod || 'CASH';
+                                return oldMethod === paymentFilter;
+                              })
+                            : archived;
 
-                            return (
-                                <div key={log.id} className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200">
-                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                        return (
+                            <div key={log.id} className={`bg-white rounded-xl sm:rounded-2xl shadow-sm border overflow-hidden transition-all duration-300 ${isExpanded ? 'border-blue-400 ring-2 ring-blue-100' : 'border-gray-200 hover:border-blue-300'}`}>
+                                {/* CABECERA CLICKEABLE */}
+                                <div 
+                                    onClick={() => {
+                                        setExpandedHistoryId(isExpanded ? null : log.id);
+                                        setPaymentFilter(null); // Reseteamos el filtro al cambiar de día
+                                        setExpandedOrderId(null);
+                                    }}
+                                    className="p-4 sm:p-6 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 select-none"
+                                >
+                                    <div className="flex items-start gap-4 flex-1">
+                                        <div className={`p-3 rounded-full hidden sm:flex transition-colors ${isExpanded ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                                            <CalendarDays size={24} />
+                                        </div>
                                         <div>
-                                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 capitalize">Corte - {dateStr}</h3>
+                                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 capitalize flex items-center gap-2">
+                                                Corte - {dateStr}
+                                                {isExpanded ? <ChevronUp size={20} className="text-gray-400 sm:hidden"/> : <ChevronDown size={20} className="text-gray-400 sm:hidden"/>}
+                                            </h3>
                                             <p className="text-gray-500 text-xs sm:text-sm mt-1 flex items-center gap-1.5">
                                                 <Clock size={12} className="sm:w-3.5 sm:h-3.5"/> {startStr} - {endStr}
                                             </p>
-                                            <p className="text-gray-500 text-xs sm:text-sm font-medium mt-0.5 sm:mt-1">Total Pedidos: {log.totalOrders}</p>
+                                            <p className="text-gray-500 text-xs sm:text-sm font-medium mt-0.5 sm:mt-1">
+                                                {log.totalOrders} Pedidos completados
+                                            </p>
                                         </div>
-                                        <div className="text-right w-full sm:w-auto bg-green-50 px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl border border-green-100 flex sm:block justify-between items-center">
+                                    </div>
+
+                                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                                        <div className="flex-1 text-right bg-green-50 px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl border border-green-100 flex sm:block justify-between items-center">
                                             <p className="text-xs sm:text-sm text-green-800 font-bold uppercase tracking-wider sm:mb-1">Total Vendido</p>
                                             <p className="text-xl sm:text-3xl font-extrabold text-green-600">${log.totalSales.toFixed(2)}</p>
                                         </div>
+                                        <div className="hidden sm:block text-gray-400">
+                                            {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+                                        </div>
                                     </div>
                                 </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
 
+                                {/* CONTENIDO EXPANDIBLE DEL DÍA */}
+                                {isExpanded && (
+                                    <div className="border-t border-gray-100 bg-gray-50 p-4 sm:p-6 animate-fade-in">
+                                        
+                                        <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 flex justify-between items-center">
+                                            <span>Desglose de Caja</span>
+                                            {paymentFilter && <span className="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded-full border border-blue-200">Filtro Activo</span>}
+                                        </h4>
+                                        
+                                        {/* 🔥 BOTONES DE FILTRO CON ESTILO DINÁMICO */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                                            <div 
+                                                onClick={() => setPaymentFilter(prev => prev === 'CASH' ? null : 'CASH')}
+                                                className={`p-4 rounded-xl border shadow-sm flex items-center gap-3 cursor-pointer transition-all ${paymentFilter === 'CASH' ? 'border-green-500 ring-2 ring-green-200 bg-green-50' : 'bg-white border-gray-200 hover:border-green-300'}`}
+                                            >
+                                                <div className="bg-green-100 p-2.5 rounded-full text-green-600">
+                                                    <Banknote size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase">Efectivo</p>
+                                                    <p className="text-lg font-black text-gray-900">${tCash.toFixed(2)}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div 
+                                                onClick={() => setPaymentFilter(prev => prev === 'CARD' ? null : 'CARD')}
+                                                className={`p-4 rounded-xl border shadow-sm flex items-center gap-3 cursor-pointer transition-all ${paymentFilter === 'CARD' ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-50' : 'bg-white border-gray-200 hover:border-blue-300'}`}
+                                            >
+                                                <div className="bg-blue-100 p-2.5 rounded-full text-blue-600">
+                                                    <CreditCard size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase">Tarjeta</p>
+                                                    <p className="text-lg font-black text-gray-900">${tCard.toFixed(2)}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div 
+                                                onClick={() => setPaymentFilter(prev => prev === 'TRANSFER' ? null : 'TRANSFER')}
+                                                className={`p-4 rounded-xl border shadow-sm flex items-center gap-3 cursor-pointer transition-all ${paymentFilter === 'TRANSFER' ? 'border-purple-500 ring-2 ring-purple-200 bg-purple-50' : 'bg-white border-gray-200 hover:border-purple-300'}`}
+                                            >
+                                                <div className="bg-purple-100 p-2.5 rounded-full text-purple-600">
+                                                    <Smartphone size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase">Transferencia</p>
+                                                    <p className="text-lg font-black text-gray-900">${tTrans.toFixed(2)}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* LISTA DE PEDIDOS FILTRADOS */}
+                                        <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">
+                                            Tickets del Día ({filteredArchived.length})
+                                        </h4>
+                                        {filteredArchived.length === 0 ? (
+                                            <p className="text-sm text-gray-500 italic bg-white p-4 rounded-xl border border-gray-200">
+                                                {paymentFilter ? 'No hay tickets con este método de pago.' : 'No hay detalles de pedidos guardados para este día.'}
+                                            </p>
+                                        ) : (
+                                            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                                                <div className="max-h-96 overflow-y-auto">
+                                                    {filteredArchived.map((order, idx) => {
+                                                        const orderTime = new Date(order.createdAt).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                                                        const isTakeaway = order.type === 'TAKEAWAY';
+                                                        const isOrderExpanded = expandedOrderId === order.id;
+                                                        
+                                                        return (
+                                                            <div key={order.id} className={`flex flex-col transition-colors ${idx !== filteredArchived.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                                                                
+                                                                <div 
+                                                                    onClick={() => setExpandedOrderId(isOrderExpanded ? null : order.id)}
+                                                                    className="p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 hover:bg-gray-50 cursor-pointer select-none"
+                                                                >
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className={`p-2 rounded-lg ${isTakeaway ? 'bg-purple-100 text-purple-600' : 'bg-orange-100 text-orange-600'}`}>
+                                                                            <Receipt size={18} />
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="font-bold text-gray-800 text-sm sm:text-base flex items-center gap-2">
+                                                                                {isTakeaway ? `Llevar: ${order.customerName || 'Cliente'}` : `Mesa ${order.tableId}`}
+                                                                                {isOrderExpanded ? <ChevronUp size={16} className="text-gray-400"/> : <ChevronDown size={16} className="text-gray-400"/>}
+                                                                            </p>
+                                                                            <p className="text-xs text-gray-500 flex gap-2">
+                                                                                <span>{orderTime}</span>
+                                                                                <span>•</span>
+                                                                                <span>Mesero: {order.waiterName}</span>
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    <div className="w-full sm:w-auto flex justify-between sm:justify-end items-center sm:gap-4 pl-11 sm:pl-0">
+                                                                        <p className="text-xs text-gray-500 font-medium">
+                                                                            {order.items.length} prod{order.items.length !== 1 ? 's' : ''}
+                                                                        </p>
+                                                                        <p className="font-black text-gray-900 text-lg">
+                                                                            ${order.total.toFixed(2)}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+
+                                                                {isOrderExpanded && (
+                                                                    <div className="bg-slate-50 px-4 py-3 sm:px-12 pb-4 text-sm animate-fade-in border-t border-gray-100">
+                                                                        <div className="space-y-2">
+                                                                            {order.items.map((item, i) => (
+                                                                                <div key={i} className="flex justify-between items-start border-b border-gray-200/50 pb-2 last:border-0 last:pb-0">
+                                                                                    <div>
+                                                                                        <p className="font-bold text-gray-800">{item.quantity}x {item.name}</p>
+                                                                                        {item.notes && <p className="text-xs text-gray-500 italic ml-4 mt-0.5">- {item.notes}</p>}
+                                                                                    </div>
+                                                                                    <p className="font-semibold text-gray-700">${(item.price * item.quantity).toFixed(2)}</p>
+                                                                                </div>
+                                                                            ))}
+                                                                            
+                                                                            {order.payments && order.payments.length > 0 && (
+                                                                                <div className="mt-4 pt-3 border-t border-dashed border-gray-300">
+                                                                                    <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Registro de pagos</p>
+                                                                                    {order.payments.map((p, pIdx) => (
+                                                                                        <div key={pIdx} className="text-xs text-gray-600 flex justify-between mb-1.5">
+                                                                                            <span className="flex items-center gap-1.5 font-medium">
+                                                                                                {p.method === 'CASH' && <Banknote size={12} className="text-green-600"/>}
+                                                                                                {p.method === 'CARD' && <CreditCard size={12} className="text-blue-600"/>}
+                                                                                                {p.method === 'TRANSFER' && <Smartphone size={12} className="text-purple-600"/>}
+                                                                                                {p.method === 'CASH' ? 'Efectivo' : p.method === 'CARD' ? 'Tarjeta' : 'Transferencia'} 
+                                                                                                {p.reference && <span className="text-gray-400 ml-1">({p.reference})</span>}
+                                                                                            </span>
+                                                                                            <span className="font-bold text-gray-800">
+                                                                                                ${p.amount.toFixed(2)} 
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    </div>
+);
     return (
         <div className="h-screen bg-gray-100 flex flex-col">
             <header className="bg-white p-3 sm:p-4 shadow-sm sm:shadow-md z-10 flex flex-row items-center justify-between gap-2 sm:gap-4">
