@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Permite HTTPS a dominios externos (como Render) -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">restaurante-backend-ys2q.onrender.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </domain-config>
+
+    <!-- Configuración para localhost o desarrollo local -->
+    <domain-config cleartexttrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+
+    <!-- Configuración por defecto para otros dominios -->
+    <default-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </default-config>
+</network-security-config>
