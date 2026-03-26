@@ -1,4 +1,4 @@
-export type Category = 'Hamburguesas' | 'Hotdogs' | 'Superburros' | 'Boneless' | 'Alitas' | 'Papas' | 'Salchichas' | 'Bebidas';
+export type Category = 'Hamburguesas' | 'Hotdogs' | 'Boneless' | 'Alitas' | 'Papas' | 'Salchichas' | 'Bebidas' | 'Tortas' | 'Extras';
 
 export interface Product {
   id: string;

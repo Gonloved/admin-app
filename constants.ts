@@ -2,99 +2,123 @@ import { Product, Table, Waiter } from './types';
 
 export const SAUCES = ['BBQ', 'Bufalo', 'BBQ Habanero', 'Mango Habanero'];
 
-// Ingredientes específicos para cada categoría
+// --- LISTAS DE INGREDIENTES (menú Veneto's LM, PDF actualizado) ---
 export const HAMBURGER_INGREDIENTS = [
-  'Mayonesa', 'Lechuga', 'Cebolla', 'Tomate', 
-  'Chile', 'Catsup', 'Cheesewiz', 'Crema', 'Guacamole'
+  'Carne', 'Queso americano', 'Queso chihuahua', 'Queso philadelphia',
+  'Mayonesa', 'Lechuga', 'Cebolla cruda', 'Cebolla asada', 'Tomate', 'Chile',
+  'Mostaza', 'Catsup', 'Aguacate', 'Tocino frito', 'Jamón', 'Piña', 'BBQ',
+  'Aros de cebolla', 'Salchicha con tocino', 'Doble carne',
+  'Boneless (salsa a elegir)', 'Queso de la casa (gratinado)',
 ];
 
-export const HOTDOG_INGREDIENTS = [
-  'Mayonesa', 'Mostaza', 'Cheesewiz', 'Catsup', 'Chile', 
-  'Tomate', 'Queso Rayado'
+const HOTDOG_PACENO_INGREDIENTS = [
+  'Salchicha con tocino', 'Cebolla asada', 'Cebolla cruda', 'Chile',
+  'Mostaza', 'Tomate', 'Crema', 'Catsup',
 ];
 
-// Lista combinada para la opción de "Agregar" ingredientes
-const allIngredients = new Set([...HAMBURGER_INGREDIENTS, ...HOTDOG_INGREDIENTS]);
+const HOTDOG_NORMAL_INGREDIENTS = [
+  'Salchicha con tocino', 'Mayonesa', 'Cebolla asada', 'Cebolla cruda',
+  'Mostaza', 'Chile', 'Cheeswiz', 'Tomate', 'Aguacate', 'Catsup', 'Queso rallado',
+  'Jamón', 'Queso chihuahua', 'Queso philadelphia', 'Queso americano',
+  'Carne asada', 'Carne de hamburguesa', 'Chile anaheim con queso chihuahua',
+  'Costra de queso chihuahua', 'Salchicha interior (embarazado)', 'Boneless', 'Ranch',
+];
+
+export const HOTDOG_INGREDIENTS = Array.from(
+  new Set([...HOTDOG_PACENO_INGREDIENTS, ...HOTDOG_NORMAL_INGREDIENTS])
+);
+
+const PAPAS_BONELESS_INGREDIENTS = ['Ranch', 'Chipotle', 'Queso parmesano', 'Salsa a elegir'];
+
+const ENSALADA_BONELESS_INGREDIENTS = [
+  'Lechuga', 'Tomate', 'Pepino', 'Zanahoria', 'Apio', 'Crotones',
+  'Parmesano', 'Ranch', 'Boneless (salsa a elegir)',
+];
+
+const TORTA_INGREDIENTS = [
+  'Carne asada', 'Jamón', 'Queso chihuahua', 'Mayonesa', 'Lechuga', 'Tomate',
+  'Cebolla asada', 'Cebolla cruda', 'Mostaza', 'Catsup', 'Chile', 'Aguacate',
+];
+
+const allIngredients = new Set([
+  ...HAMBURGER_INGREDIENTS,
+  ...HOTDOG_INGREDIENTS,
+  ...PAPAS_BONELESS_INGREDIENTS,
+  ...ENSALADA_BONELESS_INGREDIENTS,
+  ...TORTA_INGREDIENTS,
+]);
 export const CUSTOMIZABLE_INGREDIENTS = Array.from(allIngredients);
 
-
-// --- DATOS DE MESEROS ---
-// Aquí puedes modificar, agregar o eliminar meseros y sus PINs.
-// En una aplicación real, estos datos vendrían de la base de datos a través de la API.
 export const WAITERS: Waiter[] = [
-    { id: 'w1', name: 'Juan', pin: '1234' },
-    { id: 'w2', name: 'Maria', pin: '5678' },
-    { id: 'w3', name: 'Carlos', pin: '1111' },
-    { id: 'w4', name: 'Ana', pin: '2222' },
+  { id: 'w1', name: 'Juan', pin: '1234' },
+  { id: 'w2', name: 'Maria', pin: '5678' },
+  { id: 'w3', name: 'Carlos', pin: '1111' },
+  { id: 'w4', name: 'Ana', pin: '2222' },
 ];
 
 export const MENU_ITEMS: Product[] = [
-  // Hamburguesas
-  { id: 'ham_1', name: 'Clásica', price: 80, category: 'Hamburguesas' },
-  { id: 'ham_2', name: 'Clásica c/ Salchicha', price: 90, category: 'Hamburguesas' },
-  { id: 'ham_3', name: '3 Quesos', price: 100, category: 'Hamburguesas' },
-  { id: 'ham_4', name: 'Doble', price: 120, category: 'Hamburguesas' },
-  { id: 'ham_5', name: 'Hawaiana', price: 100, category: 'Hamburguesas' },
-  { id: 'ham_6', name: 'Tocino', price: 100, category: 'Hamburguesas' },
-  { id: 'ham_7', name: 'Moster', price: 150, category: 'Hamburguesas' },
+  { id: 'ham_1', name: 'Clásica', price: 85, category: 'Hamburguesas' },
+  { id: 'ham_2', name: 'Clásica c/ Salchicha', price: 95, category: 'Hamburguesas' },
+  { id: 'ham_3', name: '3 Quesos', price: 105, category: 'Hamburguesas' },
+  { id: 'ham_4', name: 'Doble', price: 130, category: 'Hamburguesas' },
+  { id: 'ham_5', name: 'Hawaiana', price: 105, category: 'Hamburguesas' },
+  { id: 'ham_6', name: 'Tocino', price: 105, category: 'Hamburguesas' },
+  { id: 'ham_7', name: 'Monster', price: 155, category: 'Hamburguesas' },
   { id: 'ham_8', name: 'Hamburguesa del Cheff', price: 130, category: 'Hamburguesas' },
   { id: 'ham_9', name: 'Hamburguesa Bonelees', price: 130, category: 'Hamburguesas' },
 
-  // Hotdogs
-  { id: 'hd_1', name: 'Paceño', price: 35, category: 'Hotdogs' },
-  { id: 'hd_2', name: 'Paceño c/ Papas', price: 55, category: 'Hotdogs' },
-  { id: 'hd_3', name: 'Normal', price: 40, category: 'Hotdogs' },
-  { id: 'hd_4', name: 'Normal c/ Papas', price: 60, category: 'Hotdogs' },
-  { id: 'hd_5', name: 'Especial', price: 45, category: 'Hotdogs' },
-  { id: 'hd_6', name: 'Especial c/ Papas', price: 65, category: 'Hotdogs' },
-  { id: 'hd_7', name: 'Embarazado', price: 60, category: 'Hotdogs' },
-  { id: 'hd_8', name: 'Embarazado c/ Papas', price: 80, category: 'Hotdogs' },
-  { id: 'hd_9', name: 'Costri Dogo', price: 50, category: 'Hotdogs' },
-  { id: 'hd_10', name: 'Costri Dogo c/ Papas', price: 70, category: 'Hotdogs' },
-  { id: 'hd_11', name: 'Asada', price: 65, category: 'Hotdogs' },
-  { id: 'hd_12', name: 'Asada c/ Papas', price: 85, category: 'Hotdogs' },
-  { id: 'hd_13', name: 'Tres Quesos', price: 55, category: 'Hotdogs' },
-  { id: 'hd_14', name: 'Tres Quesos c/ Papas', price: 75, category: 'Hotdogs' },
-  { id: 'hd_15', name: 'Dogo Burguer', price: 70, category: 'Hotdogs' },
-  { id: 'hd_16', name: 'Dogo Burguer c/ Papas', price: 90, category: 'Hotdogs' },
-  { id: 'hd_17', name: 'Chili Dogo', price: 50, category: 'Hotdogs' },
-  { id: 'hd_18', name: 'Chili Dogo c/ Papas', price: 70, category: 'Hotdogs' },
-  { id: 'hd_19', name: 'Dogo Bonelees', price: 70, category: 'Hotdogs' },
-  { id: 'hd_20', name: 'Dogo Bonelees c/ Papas', price: 85, category: 'Hotdogs' },
+  { id: 'hd_1', name: 'Paceño', price: 40, category: 'Hotdogs' },
+  { id: 'hd_2', name: 'Paceño c/ Papas', price: 60, category: 'Hotdogs' },
+  { id: 'hd_3', name: 'Normal', price: 45, category: 'Hotdogs' },
+  { id: 'hd_4', name: 'Normal c/ Papas', price: 65, category: 'Hotdogs' },
+  { id: 'hd_5', name: 'Especial', price: 50, category: 'Hotdogs' },
+  { id: 'hd_6', name: 'Especial c/ Papas', price: 70, category: 'Hotdogs' },
+  { id: 'hd_7', name: 'Embarazado', price: 65, category: 'Hotdogs' },
+  { id: 'hd_8', name: 'Embarazado c/ Papas', price: 85, category: 'Hotdogs' },
+  { id: 'hd_9', name: 'Costri Dogo', price: 55, category: 'Hotdogs' },
+  { id: 'hd_10', name: 'Costri Dogo c/ Papas', price: 75, category: 'Hotdogs' },
+  { id: 'hd_11', name: 'Asada', price: 75, category: 'Hotdogs' },
+  { id: 'hd_12', name: 'Asada c/ Papas', price: 95, category: 'Hotdogs' },
+  { id: 'hd_13', name: 'Tres Quesos', price: 60, category: 'Hotdogs' },
+  { id: 'hd_14', name: 'Tres Quesos c/ Papas', price: 80, category: 'Hotdogs' },
+  { id: 'hd_15', name: 'Dogo Burguer', price: 75, category: 'Hotdogs' },
+  { id: 'hd_16', name: 'Dogo Burguer c/ Papas', price: 95, category: 'Hotdogs' },
+  { id: 'hd_17', name: 'Chilidogo', price: 55, category: 'Hotdogs' },
+  { id: 'hd_18', name: 'Chilidogo c/ Papas', price: 75, category: 'Hotdogs' },
+  { id: 'hd_19', name: 'Dogo Bonelees', price: 75, category: 'Hotdogs' },
+  { id: 'hd_20', name: 'Dogo Bonelees c/ Papas', price: 90, category: 'Hotdogs' },
 
-  // Superburros
-  { id: 'sb_1', name: 'Super Burro', price: 110, category: 'Superburros' },
-  { id: 'sb_2', name: 'Super Quesaburro', price: 130, category: 'Superburros' },
-  { id: 'sb_3', name: 'Super Quesadilla', price: 150, category: 'Superburros' },
-  { id: 'sb_4', name: 'Super Burro Moster', price: 150, category: 'Superburros' },
+  { id: 'tor_1', name: 'Torta c/ Papas', price: 90, category: 'Tortas' },
 
-  // Boneless
-  { id: 'bn_1', name: 'Boneless Orden (250gr)', price: 115, category: 'Boneless' },
-  { id: 'bn_2', name: 'Orden de Aros de Cebolla', price: 80, category: 'Papas' }, // Re-categorized
-  { id: 'bn_3', name: 'Papas Bonelees', price: 150, category: 'Boneless' }, // It's boneless with fries, makes sense here
-  { id: 'bn_4', name: 'Paque Compartas (Boneless)', price: 300, category: 'Boneless' },
+  { id: 'bn_1', name: 'Boneless Orden (250 gr)', price: 120, category: 'Boneless' },
+  { id: 'bn_2', name: 'Orden de Aros de Cebolla', price: 65, category: 'Papas' },
+  { id: 'bn_3', name: 'Papas Bonelees', price: 160, category: 'Boneless' },
+  { id: 'bn_5', name: 'Ensalada Bonelees', price: 110, category: 'Boneless' },
+  { id: 'bn_6', name: 'Boneless 10 piezas', price: 200, category: 'Boneless' },
 
-  // Alitas
-  { id: 'al_1', name: 'Alitas 10 Piezas', price: 105, category: 'Alitas' },
-  { id: 'al_2', name: 'Alitas 20 Piezas', price: 195, category: 'Alitas' },
+  { id: 'al_1', name: 'Alitas 10 Piezas', price: 110, category: 'Alitas' },
+  { id: 'al_2', name: 'Alitas 20 Piezas', price: 200, category: 'Alitas' },
 
-  // Papas
   { id: 'pa_1', name: 'Orden de Papas', price: 50, category: 'Papas' },
-  { id: 'pa_2', name: 'Salchipapas', price: 65, category: 'Papas' },
-  { id: 'pa_3', name: 'Salchipapas c/ Carne', price: 90, category: 'Papas' },
-  { id: 'pa_4', name: 'Salchipapas c/ Carne Gratinadas', price: 100, category: 'Papas' },
+  { id: 'pa_2', name: 'Salchipapas', price: 70, category: 'Papas' },
+  { id: 'pa_3', name: 'Salchipapas c/ Carne', price: 100, category: 'Papas' },
+  { id: 'pa_4', name: 'Salchipapas c/ Carne Gratinadas', price: 115, category: 'Papas' },
 
-  // Salchichas
   { id: 'sl_1', name: 'Salchicha Sola', price: 15, category: 'Salchichas' },
-  { id: 'sl_2', name: 'Salchicha Preparada', price: 25, category: 'Salchichas' },
-  { id: 'sl_3', name: 'Salchicha Preparada (Jamón y Queso)', price: 35, category: 'Salchichas' },
-  { id: 'sl_4', name: 'Salchicha Embarazada Preparada', price: 50, category: 'Salchichas' },
+  { id: 'sl_2', name: 'Salchicha Preparada', price: 40, category: 'Salchichas' },
+  { id: 'sl_3', name: 'Salchicha Preparada (Jamón y Queso)', price: 55, category: 'Salchichas' },
+  { id: 'sl_4', name: 'Salchicha Embarazada Preparada', price: 30, category: 'Salchichas' },
 
-  // Bebidas
-  { id: 'beb_1', name: 'Refresco', price: 25, category: 'Bebidas' },
+  { id: 'beb_1', name: 'Refresco', price: 30, category: 'Bebidas' },
   { id: 'beb_2', name: 'Té Jazmín de la casa', price: 25, category: 'Bebidas' },
   { id: 'beb_3', name: 'Agua Natural', price: 15, category: 'Bebidas' },
   { id: 'beb_4', name: 'Litro de Té', price: 45, category: 'Bebidas' },
+  { id: 'beb_5', name: 'Naranjita', price: 25, category: 'Bebidas' },
+
+  // Extras
+  { id: 'ex_ranch', name: 'Extra Ranch', price: 15, category: 'Extras' },
+  { id: 'ex_chipotle', name: 'Extra Chipotle', price: 15, category: 'Extras' },
+  { id: 'ex_custom', name: 'Extra Personalizable', price: 0, category: 'Extras' },
 ];
 
 export const INITIAL_TABLES: Table[] = Array.from({ length: 8 }, (_, i) => ({
