@@ -186,7 +186,7 @@ const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' 
 
     useEffect(() => {
         fetchOrders();
-        const interval = setInterval(fetchOrders, 10000); 
+        const interval = setInterval(fetchOrders, 2000); // ⚡ Cambiad de 10000 a 2000 para sincronización en tiempo real
         return () => clearInterval(interval);
     }, [fetchOrders]);
     
