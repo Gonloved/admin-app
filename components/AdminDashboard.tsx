@@ -186,7 +186,8 @@ const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' 
 
     useEffect(() => {
         fetchOrders();
-        const interval = setInterval(fetchOrders, 2000); // ⚡ Cambiad de 10000 a 2000 para sincronización en tiempo real
+        // 🔥 FIX 1: Polling automático cada 2 segundos (mismo que WaiterPOS)
+        const interval = setInterval(fetchOrders, 2000);
         return () => clearInterval(interval);
     }, [fetchOrders]);
     
