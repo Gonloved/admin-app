@@ -192,11 +192,27 @@ const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' 
     
     const handleDeleteOrder = async (orderId: string) => {
         try {
-            await api.deleteOrder(orderId);
-            fetchOrders(); 
+            const response = await api.deleteOrder(orderId);
+            
+            // 🔥 NUEVO FIX: Validar que la eliminación fue exitosa antes de recargar
+            if (response?.status === 'ok') {
+                // Eliminar localmente de forma optimista
+                setOrders(prevOrders => prevOrders.filter(o => o.id !== orderId));
+                console.log(`✅ Pedido ${orderId} eliminado correctamente`);
+            } else {
+                throw new Error('La respuesta del servidor no fue exitosa');
+            }
+            
+            // Recargar desde el servidor después de un pequeño delay
+            setTimeout(() => {
+                fetchOrders();
+            }, 500);
+            
         } catch(e) {
-            console.error("Failed to delete order", e);
-            alert("Error al eliminar el pedido.");
+            console.error("❌ Error eliminando pedido:", e);
+            alert("Error al eliminar el pedido. Intenta de nuevo.");
+            // Recargar para revertir cambios
+            fetchOrders();
         }
     };
 

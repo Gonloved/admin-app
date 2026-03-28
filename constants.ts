@@ -91,10 +91,9 @@ export const MENU_ITEMS: Product[] = [
   { id: 'tor_1', name: 'Torta c/ Papas', price: 90, category: 'Tortas' },
 
   { id: 'bn_1', name: 'Boneless Orden (250 gr)', price: 120, category: 'Boneless' },
-  { id: 'bn_2', name: 'Orden de Aros de Cebolla', price: 65, category: 'Papas' },
-  { id: 'bn_3', name: 'Papas Bonelees', price: 160, category: 'Boneless' },
-  { id: 'bn_5', name: 'Ensalada Bonelees', price: 110, category: 'Boneless' },
-  { id: 'bn_6', name: 'Boneless 10 piezas', price: 200, category: 'Boneless' },
+  { id: 'bn_2', name: 'Orden de Aros de Cebolla', price: 70, category: 'Boneless' },
+  { id: 'bn_3', name: 'Papas Bonelees', price: 150, category: 'Boneless' },
+  { id: 'bn_5', name: 'Ensalada Bonelees', price: 160, category: 'Boneless' },
 
   { id: 'al_1', name: 'Alitas 10 Piezas', price: 110, category: 'Alitas' },
   { id: 'al_2', name: 'Alitas 20 Piezas', price: 200, category: 'Alitas' },
@@ -105,9 +104,9 @@ export const MENU_ITEMS: Product[] = [
   { id: 'pa_4', name: 'Salchipapas c/ Carne Gratinadas', price: 115, category: 'Papas' },
 
   { id: 'sl_1', name: 'Salchicha Sola', price: 15, category: 'Salchichas' },
-  { id: 'sl_2', name: 'Salchicha Preparada', price: 40, category: 'Salchichas' },
-  { id: 'sl_3', name: 'Salchicha Preparada (Jamón y Queso)', price: 55, category: 'Salchichas' },
-  { id: 'sl_4', name: 'Salchicha Embarazada Preparada', price: 30, category: 'Salchichas' },
+  { id: 'sl_2', name: 'Salchicha Preparada', price: 30, category: 'Salchichas' },
+  { id: 'sl_3', name: 'Salchicha Preparada (Jamón y Queso)', price: 40, category: 'Salchichas' },
+  { id: 'sl_4', name: 'Salchicha Embarazada Preparada', price: 55, category: 'Salchichas' },
 
   { id: 'beb_1', name: 'Refresco', price: 30, category: 'Bebidas' },
   { id: 'beb_2', name: 'Té Jazmín de la casa', price: 25, category: 'Bebidas' },

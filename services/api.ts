@@ -99,15 +99,23 @@ export const api = {
         }
     },
 
-    deleteOrder: async (orderId: string): Promise<void> => {
-        try {
-            logRequest('DELETE', `/orders/${orderId}`);
-            const response = await fetch(`${API_URL}/orders/${orderId}`, { method: 'DELETE' });
-            logRequest('DELETE', `/orders/${orderId}`, response.status);
-        } catch (error) {
-            logRequest('DELETE', `/orders/${orderId}`, undefined, error);
+   deleteOrder: async (orderId: string): Promise<{ status: string; message?: string }> => {
+    try {
+        logRequest('DELETE', `/orders/${orderId}`);
+        const response = await fetch(`${API_URL}/orders/${orderId}`, { method: 'DELETE' });
+        logRequest('DELETE', `/orders/${orderId}`, response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
         }
-    },
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        logRequest('DELETE', `/orders/${orderId}`, undefined, error);
+        throw new Error(`Error eliminando pedido: ${error}`);
+    }
+},
 
     closeDay: async (): Promise<void> => {
         try {
