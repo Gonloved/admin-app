@@ -91,7 +91,7 @@ export const MENU_ITEMS: Product[] = [
   { id: 'tor_1', name: 'Torta c/ Papas', price: 90, category: 'Tortas' },
 
   { id: 'bn_1', name: 'Boneless Orden (250 gr)', price: 120, category: 'Boneless' },
-  { id: 'bn_2', name: 'Orden de Aros de Cebolla', price: 70, category: 'Boneless' },
+  { id: 'bn_2', name: 'Orden de Aros de Cebolla', price: 70, category: 'Papas' },
   { id: 'bn_3', name: 'Papas Bonelees', price: 150, category: 'Boneless' },
   { id: 'bn_5', name: 'Ensalada Bonelees', price: 160, category: 'Boneless' },
 
@@ -108,7 +108,9 @@ export const MENU_ITEMS: Product[] = [
   { id: 'sl_3', name: 'Salchicha Preparada (Jamón y Queso)', price: 40, category: 'Salchichas' },
   { id: 'sl_4', name: 'Salchicha Embarazada Preparada', price: 55, category: 'Salchichas' },
 
-  { id: 'beb_1', name: 'Refresco', price: 30, category: 'Bebidas' },
+  { id: 'beb_1', name: 'Coca', price: 30, category: 'Bebidas' },
+  { id: 'beb_1b', name: 'Coca Zero', price: 30, category: 'Bebidas' },
+  { id: 'beb_1c', name: 'Sprite', price: 30, category: 'Bebidas' },
   { id: 'beb_2', name: 'Té Jazmín de la casa', price: 25, category: 'Bebidas' },
   { id: 'beb_3', name: 'Agua Natural', price: 15, category: 'Bebidas' },
   { id: 'beb_4', name: 'Litro de Té', price: 45, category: 'Bebidas' },
