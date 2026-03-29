@@ -91,7 +91,7 @@ export const MENU_ITEMS: Product[] = [
   { id: 'tor_1', name: 'Torta c/ Papas', price: 90, category: 'Tortas' },
 
   { id: 'bn_1', name: 'Boneless Orden (250 gr)', price: 120, category: 'Boneless' },
-  { id: 'bn_2', name: 'Orden de Aros de Cebolla', price: 70, category: 'Papas' },
+    { id: 'bn_2', name: 'Orden de Aros de Cebolla', price: 70, category: 'Boneless' },
   { id: 'bn_3', name: 'Papas Bonelees', price: 150, category: 'Boneless' },
   { id: 'bn_5', name: 'Ensalada Bonelees', price: 160, category: 'Boneless' },
 
