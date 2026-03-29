@@ -22,7 +22,17 @@ const logRequest = (method: string, endpoint: string, status?: number, error?: u
 
 export const api = {
     // --- 1. DATOS LOCALES (Fakes para velocidad en presentación) ---
-    getWaiters: async (): Promise<Waiter[]> => Promise.resolve(WAITERS),
+    getWaiters: async (): Promise<Waiter[]> => {
+        try {
+            logRequest('GET', '/waiters');
+            const response = await fetch(`${API_URL}/waiters`);
+            logRequest('GET', '/waiters', response.status);
+            return await response.json();
+        } catch (error) {
+            logRequest('GET', '/waiters', undefined, error);
+            return WAITERS;
+        }
+    },
     
     getTables: async (): Promise<Table[]> => INITIAL_TABLES, // Siempre mesas locales para evitar lag
     
@@ -99,23 +109,23 @@ export const api = {
         }
     },
 
-   deleteOrder: async (orderId: string): Promise<{ status: string; message?: string }> => {
-    try {
-        logRequest('DELETE', `/orders/${orderId}`);
-        const response = await fetch(`${API_URL}/orders/${orderId}`, { method: 'DELETE' });
-        logRequest('DELETE', `/orders/${orderId}`, response.status);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+    deleteOrder: async (orderId: string): Promise<{ status: string; message?: string }> => {
+        try {
+            logRequest('DELETE', `/orders/${orderId}`);
+            const response = await fetch(`${API_URL}/orders/${orderId}`, { method: 'DELETE' });
+            logRequest('DELETE', `/orders/${orderId}`, response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            logRequest('DELETE', `/orders/${orderId}`, undefined, error);
+            throw new Error(`Error eliminando pedido: ${error}`);
         }
-        
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        logRequest('DELETE', `/orders/${orderId}`, undefined, error);
-        throw new Error(`Error eliminando pedido: ${error}`);
-    }
-},
+    },
 
     closeDay: async (): Promise<void> => {
         try {
@@ -124,6 +134,28 @@ export const api = {
             logRequest('POST', '/close-day', response.status);
         } catch (error) {
             logRequest('POST', '/close-day', undefined, error);
+        }
+    },
+
+    updateWaiter: async (waiterId: string, updates: { name?: string; pin?: string }): Promise<{ status: string; message?: string }> => {
+        try {
+            logRequest('PUT', `/waiters/${waiterId}`);
+            const response = await fetch(`${API_URL}/waiters/${waiterId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates),
+            });
+            logRequest('PUT', `/waiters/${waiterId}`, response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            logRequest('PUT', `/waiters/${waiterId}`, undefined, error);
+            throw new Error(`Error actualizando mesero: ${error}`);
         }
     },
 

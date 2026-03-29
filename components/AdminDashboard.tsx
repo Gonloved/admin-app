@@ -152,15 +152,96 @@ const OrderAdminCard: React.FC<{ order: Order; onDelete: (orderId: string) => vo
     );
 };
 
+// 🔥 NUEVO: Modal de Autenticación Admin
+interface AdminLoginModalProps {
+    isOpen: boolean;
+    onConfirm: (password: string) => void;
+}
+
+const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onConfirm }) => {
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    const handleLogin = () => {
+        if (password === '909012') {
+            onConfirm(password);
+            setPassword('');
+            setError('');
+        } else {
+            setError('Contraseña incorrecta');
+            setPassword('');
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 sm:p-8">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Panel Administrativo</h2>
+                <p className="text-gray-500 mb-6">Ingresa tu contraseña para acceder</p>
+
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="admin-password" className="block text-sm font-semibold text-gray-700 mb-2">
+                            Contraseña
+                        </label>
+                        <input
+                            id="admin-password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => {
+                                setPassword(e.target.value);
+                                setError('');
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleLogin();
+                            }}
+                            placeholder="••••••"
+                            className="w-full px-4 py-3 bg-gray-100 border-2 border-transparent focus:bg-white focus:border-blue-400 rounded-lg transition-all outline-none text-center text-lg tracking-widest font-semibold"
+                            autoFocus
+                        />
+                        {error && (
+                            <p className="mt-2 text-sm text-red-600 font-semibold">{error}</p>
+                        )}
+                    </div>
+
+                    <button
+                        onClick={handleLogin}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg"
+                    >
+                        Acceder
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const AdminDashboard: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [historyLogs, setHistoryLogs] = useState<DaySummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'sales' | 'inventory' | 'history'>('sales');
+    const [activeTab, setActiveTab] = useState<'sales' | 'inventory' | 'history' | 'customize'>('sales');
 const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
 const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' | null>(null);
+
+    // 🔥 NUEVO: Estados para meseros (Customize)
+    interface Waiter {
+        id: string;
+        name: string;
+        pin: string;
+    }
+    const [waiters, setWaiters] = useState<Waiter[]>([]);
+    const [editingWaiterId, setEditingWaiterId] = useState<string | null>(null);
+    const [editedName, setEditedName] = useState('');
+    const [editedPin, setEditedPin] = useState('');
+    
+    // 🔥 NUEVO: Autenticación de Admin
+    const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+    const [adminPassword, setAdminPassword] = useState('');
 
     const fetchOrders = useCallback(async () => {
         try {
@@ -190,6 +271,40 @@ const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' 
         const interval = setInterval(fetchOrders, 2000);
         return () => clearInterval(interval);
     }, [fetchOrders]);
+
+    // 🔥 NUEVO: Cargar meseros al abrir la pestaña Customize
+    useEffect(() => {
+        if (activeTab === 'customize') {
+            api.getWaiters().then(setWaiters).catch(err => console.error('Error loading waiters:', err));
+        }
+    }, [activeTab]);
+
+    // 🔥 NUEVO: Actualizar mesero
+    const handleSaveWaiter = async (waiterId: string) => {
+        if (!editedName.trim()) {
+            alert('El nombre no puede estar vacío');
+            return;
+        }
+        if (!editedPin.trim()) {
+            alert('El PIN no puede estar vacío');
+            return;
+        }
+
+        try {
+            const response = await api.updateWaiter(waiterId, { name: editedName.trim(), pin: editedPin.trim() });
+            if (response?.status === 'ok') {
+                // Actualizar localmente
+                setWaiters(prev => prev.map(w => w.id === waiterId ? { ...w, name: editedName.trim(), pin: editedPin.trim() } : w));
+                setEditingWaiterId(null);
+                setEditedName('');
+                setEditedPin('');
+                alert('Mesero actualizado correctamente');
+            }
+        } catch (err) {
+            console.error('Error updating waiter:', err);
+            alert('Error al actualizar el mesero');
+        }
+    };
     
     const handleDeleteOrder = async (orderId: string) => {
         try {
@@ -236,6 +351,96 @@ const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' 
         const takeawayCount = orders.filter(o => o.type === 'TAKEAWAY').length;
         return { totalSales, dineInCount, takeawayCount };
     }, [orders]);
+
+    const renderCustomizeContent = () => (
+        <div className="flex-1 p-3 sm:p-6 bg-gray-50 overflow-y-auto">
+            <div className="max-w-4xl mx-auto">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <User size={28} className="text-pink-600" />
+                    Gestionar Perfiles de Meseros
+                </h2>
+
+                {waiters.length === 0 ? (
+                    <div className="text-center text-gray-400 py-8">
+                        <User size={48} className="mx-auto mb-3" />
+                        <p className="text-gray-500">No hay meseros cargados</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {waiters.map(waiter => (
+                            <div key={waiter.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all hover:shadow-md">
+                                {editingWaiterId === waiter.id ? (
+                                    // MODO EDICIÓN
+                                    <div className="p-4 sm:p-6">
+                                        <h3 className="font-bold text-gray-800 mb-4">Editando: {waiter.name}</h3>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre</label>
+                                                <input
+                                                    type="text"
+                                                    value={editedName}
+                                                    onChange={(e) => setEditedName(e.target.value)}
+                                                    className="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:border-pink-400 focus:bg-white outline-none"
+                                                    placeholder="Nombre del mesero"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">PIN</label>
+                                                <input
+                                                    type="text"
+                                                    value={editedPin}
+                                                    onChange={(e) => setEditedPin(e.target.value)}
+                                                    maxLength={4}
+                                                    className="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:border-pink-400 focus:bg-white outline-none font-mono text-lg tracking-widest"
+                                                    placeholder="0000"
+                                                />
+                                            </div>
+                                            <div className="flex gap-3 justify-end">
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingWaiterId(null);
+                                                        setEditedName('');
+                                                        setEditedPin('');
+                                                    }}
+                                                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-lg transition-colors"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                                <button
+                                                    onClick={() => handleSaveWaiter(waiter.id)}
+                                                    className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-lg transition-colors"
+                                                >
+                                                    Guardar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    // MODO VISTA
+                                    <div className="p-4 sm:p-6 flex items-center justify-between gap-4">
+                                        <div className="flex-1">
+                                            <h3 className="font-bold text-lg text-gray-800 mb-1">{waiter.name}</h3>
+                                            <p className="text-sm text-gray-500">ID: {waiter.id} • PIN: ••••</p>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setEditingWaiterId(waiter.id);
+                                                setEditedName(waiter.name);
+                                                setEditedPin(waiter.pin);
+                                            }}
+                                            className="px-4 py-2 bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold rounded-lg transition-colors whitespace-nowrap"
+                                        >
+                                            Editar
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 
     const renderSalesContent = () => (
         <>
@@ -510,6 +715,13 @@ const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' 
 );
     return (
         <div className="h-screen bg-gray-100 flex flex-col">
+            <AdminLoginModal 
+                isOpen={!isAdminAuthenticated}
+                onConfirm={() => setIsAdminAuthenticated(true)}
+            />
+            
+            {isAdminAuthenticated && (
+            <>
             <header className="bg-white p-3 sm:p-4 shadow-sm sm:shadow-md z-10 flex flex-row items-center justify-between gap-2 sm:gap-4">
                 <div className="flex items-center gap-2 sm:gap-3">
                     <ClipboardList size={24} className="text-teal-600 sm:w-8 sm:h-8" />
@@ -555,12 +767,20 @@ const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' 
                         className={`shrink-0 border-b-2 sm:border-b-4 px-2 py-3 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === 'inventory' ? 'border-purple-500 text-purple-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                         Inventario
                     </button>
+                    <button
+                        onClick={() => setActiveTab('customize')}
+                        className={`shrink-0 border-b-2 sm:border-b-4 px-2 py-3 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === 'customize' ? 'border-pink-500 text-pink-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                        Customizar
+                    </button>
                 </nav>
             </div>
 
             {activeTab === 'sales' && renderSalesContent()}
             {activeTab === 'history' && renderHistoryContent()}
             {activeTab === 'inventory' && renderInventoryContent()}
+            {activeTab === 'customize' && renderCustomizeContent()}
+            </>
+            )}
         </div>
     );
 };
