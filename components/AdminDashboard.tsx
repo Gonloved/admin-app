@@ -678,20 +678,28 @@ const [paymentFilter, setPaymentFilter] = useState<'CASH' | 'CARD' | 'TRANSFER' 
                                                                             {order.payments && order.payments.length > 0 && (
                                                                                 <div className="mt-4 pt-3 border-t border-dashed border-gray-300">
                                                                                     <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Registro de pagos</p>
-                                                                                    {order.payments.map((p, pIdx) => (
-                                                                                        <div key={pIdx} className="text-xs text-gray-600 flex justify-between mb-1.5">
-                                                                                            <span className="flex items-center gap-1.5 font-medium">
-                                                                                                {p.method === 'CASH' && <Banknote size={12} className="text-green-600"/>}
-                                                                                                {p.method === 'CARD' && <CreditCard size={12} className="text-blue-600"/>}
-                                                                                                {p.method === 'TRANSFER' && <Smartphone size={12} className="text-purple-600"/>}
-                                                                                                {p.method === 'CASH' ? 'Efectivo' : p.method === 'CARD' ? 'Tarjeta' : 'Transferencia'} 
-                                                                                                {p.reference && <span className="text-gray-400 ml-1">({p.reference})</span>}
-                                                                                            </span>
-                                                                                            <span className="font-bold text-gray-800">
-                                                                                                ${p.amount.toFixed(2)} 
-                                                                                            </span>
-                                                                                        </div>
-                                                                                    ))}
+                                                                                    {(() => {
+                                                                                        const totalDeclared = order.payments.reduce((s: number, pp: any) => s + pp.amount, 0);
+                                                                                        return order.payments.map((p: any, pIdx: number) => {
+                                                                                            const share = totalDeclared > 0
+                                                                                                ? order.total * (p.amount / totalDeclared)
+                                                                                                : order.total / order.payments.length;
+                                                                                            return (
+                                                                                                <div key={pIdx} className="text-xs text-gray-600 flex justify-between mb-1.5">
+                                                                                                    <span className="flex items-center gap-1.5 font-medium">
+                                                                                                        {p.method === 'CASH' && <Banknote size={12} className="text-green-600"/>}
+                                                                                                        {p.method === 'CARD' && <CreditCard size={12} className="text-blue-600"/>}
+                                                                                                        {p.method === 'TRANSFER' && <Smartphone size={12} className="text-purple-600"/>}
+                                                                                                        {p.method === 'CASH' ? 'Efectivo' : p.method === 'CARD' ? 'Tarjeta' : 'Transferencia'} 
+                                                                                                        {p.reference && <span className="text-gray-400 ml-1">({p.reference})</span>}
+                                                                                                    </span>
+                                                                                                    <span className="font-bold text-gray-800">
+                                                                                                        ${share.toFixed(2)} 
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            );
+                                                                                        });
+                                                                                    })()}
                                                                                 </div>
                                                                             )}
                                                                         </div>
